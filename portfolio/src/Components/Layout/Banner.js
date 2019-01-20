@@ -1,11 +1,10 @@
 import React from "react";
-import backgroundImg from "./../../Assets/Images/cribbar2.JPG";
 import styles from "./../../Assets/CSS/Layout/BannerImg.module.css";
 
-export default () => (
+export default ({ imgSrc }) => (
   <img
     id="backgroundImage"
-    src={backgroundImg}
+    src={imgSrc}
     className={styles.banner}
     alt="banner_image"
   />

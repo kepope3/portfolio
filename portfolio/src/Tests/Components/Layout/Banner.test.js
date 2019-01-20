@@ -6,4 +6,10 @@ describe("Banner component", () => {
     const comp = shallow(<Banner />);
     expect(comp.find("#backgroundImage")).toHaveLength(1);
   });
+
+  it("Should inject image src from props", () => {
+    const expectedSrc = "/sds/sds";
+    const comp = shallow(<Banner imgSrc={expectedSrc} />);
+    expect(comp.find("#backgroundImage").prop("src")).toBe(expectedSrc);
+  });
 });
