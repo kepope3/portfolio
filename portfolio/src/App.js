@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import "./App.css";
 import Layout from "./Components/Layout/Layout";
+import styles from "./Assets/CSS/global.module.css";
 
 class App extends Component {
   render() {
     return (
-      <div>
+      <div className={styles.global}>
         <Layout />
       </div>
     );

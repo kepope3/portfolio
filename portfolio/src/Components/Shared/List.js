@@ -5,7 +5,9 @@ export default ({ list, styles }) => {
     <React.Fragment>
       <ul className={listStyles}>
         {list.map((item, key) => (
-          <li id={"li" + key}>{item}</li>
+          <li key={key} id={"li" + key}>
+            {item}
+          </li>
         ))}
       </ul>
     </React.Fragment>

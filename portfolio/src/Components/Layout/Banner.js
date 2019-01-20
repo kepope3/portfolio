@@ -1,5 +1,5 @@
 import React from "react";
-import backgroundImg from "./../../Assets/Images/banner_img.JPG";
+import backgroundImg from "./../../Assets/Images/cribbar2.JPG";
 import styles from "./../../Assets/CSS/Layout/BannerImg.module.css";
 
 export default () => (

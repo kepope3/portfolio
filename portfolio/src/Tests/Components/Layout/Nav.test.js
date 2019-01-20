@@ -9,7 +9,12 @@ describe("Nav component", () => {
     expect(comp.find(List)).toHaveLength(1);
   });
   it("list should take a list of items and styles", () => {
-    const expectedList = ["home", "about"];
+    const expectedList = [
+      <a href="#about">About</a>,
+      <a href="#resume">Resume</a>,
+      <a href="#portfolio">Portfolio</a>,
+      <a href="#contact">Contact</a>
+    ];
 
     const listComp = comp.find(List);
     expect(listComp.prop("list")).toEqual(expectedList);

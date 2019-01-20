@@ -3,7 +3,7 @@ import React from "react";
 import List from "../../../Components/Shared/List";
 describe("List component", () => {
   const expectedList = ["home", "about"];
-  const expectedStyles = { li: "test" };
+  const expectedStyles = { list: "test" };
 
   const comp = shallow(<List styles={expectedStyles} list={expectedList} />);
   it("Should render list passed in by props", () => {
@@ -11,7 +11,6 @@ describe("List component", () => {
     expect(comp.find("#li1").text()).toContain(expectedList[1]);
   });
   it("Should have styles applied if injected in by props", () => {
-    expect(comp.find("#li0").prop("className")).toContain(expectedStyles.li);
-    expect(comp.find("#li1").prop("className")).toContain(expectedStyles.li);
+    expect(comp.find("ul").prop("className")).toContain(expectedStyles.list);
   });
 });
