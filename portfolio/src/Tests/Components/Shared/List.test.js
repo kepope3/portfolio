@@ -11,7 +11,7 @@ describe("List component", () => {
     expect(comp.find("#li1").text()).toContain(expectedList[1]);
   });
   it("Should have styles applied if injected in by props", () => {
-    expect(comp.find("#li0").prop("styles")).toContain(expectedStyles[0]);
-    // expect(comp.find("#li1").text()).toContain(expectedList[1]);
+    expect(comp.find("#li0").prop("className")).toContain(expectedStyles.li);
+    expect(comp.find("#li1").prop("className")).toContain(expectedStyles.li);
   });
 });

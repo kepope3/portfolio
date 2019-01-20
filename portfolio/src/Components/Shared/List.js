@@ -1,8 +1,9 @@
 import React from "react";
-export default ({ list }) => {
+export default ({ list, styles }) => {
+  const listStyles = styles ? styles.list : null;
   return (
     <React.Fragment>
-      <ul>
+      <ul className={listStyles}>
         {list.map((item, key) => (
           <li id={"li" + key}>{item}</li>
         ))}

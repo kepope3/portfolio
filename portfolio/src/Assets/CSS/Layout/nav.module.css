@@ -1,3 +1,20 @@
-.li {
+.list {
+  margin-bottom: 0;
+}
+
+.list li {
   display: inline-block;
+  margin-right: 10px;
+  font-weight: 700;
+  font-size: 34px;
+}
+
+.nav {
+  background-color: white;
+  opacity: 0.5;
+  border-radius: 25px;
+  position: fixed;
+  margin: 10px 0 0 20px;
+  padding: 5px;
+  width: 44%;
 }
