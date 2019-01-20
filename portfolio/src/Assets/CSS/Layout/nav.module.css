@@ -1,6 +1,8 @@
 .list {
   margin-bottom: 0;
-  padding-left: 35px;
+  margin-left: 5%;
+  margin-top: 2%;
+  padding-left: 0;
 }
 
 .list li:not(:last-child) {
