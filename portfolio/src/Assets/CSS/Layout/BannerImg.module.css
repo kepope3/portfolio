@@ -1,4 +1,9 @@
 .banner {
   width: 100%;
-  z-index: -1000;
+}
+
+@media screen and (max-width: 800px) {
+  .banner {
+    height: 234px;
+  }
 }

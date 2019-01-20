@@ -1,18 +1,18 @@
 .list {
   margin-bottom: 0;
-  padding-left: 0;
+  padding-left: 35px;
 }
 
 .list li:not(:last-child) {
-  margin-right: 30px;
+  margin-right: 25px;
 }
 
 .list li {
   display: inline-block;
-  font-size: 50px;
+  font-size: 70px;
 }
 
-.list a {
+.list li a {
   color: #bfbfbf;
   transition: 0.4s;
   text-decoration: none;
@@ -28,9 +28,20 @@
 
 .nav {
   position: fixed;
-  top: 0;
-  padding-top: 20px;
-  -webkit-transform: translateX(-50%);
-  transform: translateX(-50%);
-  left: 50%;
+  top: 7px;
+  left: 0;
+  width: 70%;
+}
+
+@media screen and (max-width: 800px) {
+  .nav {
+    position: absolute;
+  }
+  .list li {
+    display: block;
+    font-size: 40px;
+  }
+  .list li:first-child {
+    display: none;
+  }
 }

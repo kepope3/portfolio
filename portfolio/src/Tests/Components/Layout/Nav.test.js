@@ -12,7 +12,6 @@ describe("Nav component", () => {
     const expectedList = [
       <a href="#home">Home</a>,
       <a href="#about">About</a>,
-      <a href="#resume">Resume</a>,
       <a href="#portfolio">Portfolio</a>,
       <a href="#contact">Contact</a>
     ];
