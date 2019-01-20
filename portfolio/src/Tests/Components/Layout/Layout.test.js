@@ -1,7 +1,7 @@
 import { shallow } from "enzyme";
 import React from "react";
-import Layout from "../../Components/Layout";
-import Banner from "./Layout/Banner";
+import Layout from "../../../Components/Layout/Layout";
+import Banner from "../../../Components/Layout/Banner";
 
 describe("layout component", () => {
   it("should render", () => {
