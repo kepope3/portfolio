@@ -10,6 +10,7 @@ describe("Nav component", () => {
   });
   it("list should take a list of items and styles", () => {
     const expectedList = [
+      <a href="#home">Home</a>,
       <a href="#about">About</a>,
       <a href="#resume">Resume</a>,
       <a href="#portfolio">Portfolio</a>,
