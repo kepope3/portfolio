@@ -1,10 +1,10 @@
 import React from "react";
-import Section from "./Section";
+import Section from "../Shared/Section";
 import Nav from "./Nav";
 import LinkedInBubble from "./LinkedInBubble";
 import backgroundImg from "./../../Assets/Images/cribbar2.JPG";
 
-export default () => (
+export default ({ children }) => (
   <React.Fragment>
     <div id="home" />
     <Section
@@ -13,5 +13,6 @@ export default () => (
       <Nav />
     </Section>
     <LinkedInBubble />
+    <div id="childrenWrapper">{children}</div>
   </React.Fragment>
 );

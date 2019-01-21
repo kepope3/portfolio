@@ -1,6 +1,6 @@
 import { shallow } from "enzyme";
 import React from "react";
-import Section from "../../../Components/Layout/Section";
+import Section from "../../../Components/Shared/Section";
 describe("Section component", () => {
   const expectedStyle = { background: "" };
   const expectedChildren = <p>hi</p>;
