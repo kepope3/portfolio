@@ -8,7 +8,9 @@ export default ({ children }) => (
   <React.Fragment>
     <div id="home" />
     <Section
-      backgroundStyle={{ backgroundImage: "url('" + backgroundImg + "')" }}
+      backgroundStyle={{
+        backgroundImage: "url('" + backgroundImg + "')"
+      }}
     >
       <Nav />
     </Section>

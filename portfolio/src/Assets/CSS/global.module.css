@@ -1,3 +1,16 @@
 .global {
   font-family: "Thasadith", sans-serif;
 }
+
+.global h2 {
+  color: #bfbab9;
+  font-size: 50px;
+}
+
+.global p {
+  margin-bottom: 0;
+  color: #f7f3f2;
+  font-size: 30px;
+  padding-bottom: 10px;
+  line-height: 35px;
+}
