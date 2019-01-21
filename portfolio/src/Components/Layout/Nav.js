@@ -6,7 +6,9 @@ export default () => (
     <List
       styles={styles}
       list={[
-        <a href="#home">Home</a>,
+        <a href="#home">
+          <i className="fas fa-home" />
+        </a>,
         <a href="#about">About</a>,
         <a href="#portfolio">Portfolio</a>,
         <a href="#contact">Contact</a>

@@ -10,7 +10,9 @@ describe("Nav component", () => {
   });
   it("list should take a list of items and styles", () => {
     const expectedList = [
-      <a href="#home">Home</a>,
+      <a href="#home">
+        <i className="fas fa-home" />
+      </a>,
       <a href="#about">About</a>,
       <a href="#portfolio">Portfolio</a>,
       <a href="#contact">Contact</a>

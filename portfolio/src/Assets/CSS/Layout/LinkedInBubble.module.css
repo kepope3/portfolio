@@ -1,7 +1,7 @@
 .bubble {
   position: fixed;
-  top: 5%;
-  right: 5%;
+  top: 4%;
+  right: 2%;
   transition: all 0.2s;
 }
 
@@ -11,16 +11,27 @@
 }
 
 .face {
-  width: 200px;
-  height: 193px;
+  width: 160px;
+  height: 156px;
   border: 6px solid #ffff;
   border-radius: 100%;
 }
-@media screen and (max-width: 800px) {
+
+.icon {
+  bottom: 0;
+  color: #0077b5;
+  font-size: 55px;
+  right: 0;
+  position: absolute;
+}
+@media screen and (max-width: 1024px) {
   .face {
-    width: 100px;
-    height: 98px;
+    width: 80px;
+    height: 78px;
     border: 1px solid #ffff;
-    border-radius: 100%;
+  }
+
+  .icon {
+    font-size: 30px;
   }
 }
