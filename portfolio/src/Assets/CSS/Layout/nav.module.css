@@ -1,13 +1,15 @@
 .nav {
   min-height: 400px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: table;
+  margin: auto;
+  text-align: center;
 }
 
 .list {
   padding-left: 0;
-  text-align: center;
+  display: table-cell;
+  vertical-align: middle;
+
   margin-bottom: 0;
 }
 
@@ -33,9 +35,10 @@
   position: fixed;
   bottom: 2%;
   left: 2%;
+  z-index: 1000;
 }
 
-@media screen and (max-width: 375px) {
+@media screen and (max-width: 1024px) {
   .list li {
     font-size: 55px;
   }

@@ -3,14 +3,28 @@
 }
 
 .global h2 {
-  color: #bfbab9;
   font-size: 50px;
+  color: #bfbab9;
+}
+
+.global h3 {
+  color: #a8a1a1;
 }
 
 .global p {
   margin-bottom: 0;
-  color: #f7f3f2;
+  color: #bfbab9;
   font-size: 30px;
-  padding-bottom: 10px;
-  line-height: 35px;
+  padding: 10px 0;
+  line-height: 28px;
+}
+
+@media screen and (max-width: 1024px) {
+  .list li {
+    font-size: 55px;
+  }
+  .global p {
+    font-size: 20px;
+    line-height: 25px;
+  }
 }
