@@ -1,25 +1,33 @@
-import { shallow } from "enzyme";
+import { mount } from "enzyme";
 import React from "react";
 import Nav from "../../../Components/Layout/Nav";
 import List from "../../../Components/Shared/List";
 describe("Nav component", () => {
-  const comp = shallow(<Nav />);
+  const comp = mount(<Nav />);
 
-  it("Should have List", () => {
-    expect(comp.find(List)).toHaveLength(1);
-  });
   it("list should take a list of items and styles", () => {
-    const expectedList = [
-      <a href="#home">
-        <i className="fas fa-home" />
-      </a>,
-      <a href="#about">About</a>,
-      <a href="#resume">Resume</a>,
-      <a href="#contact">Contact</a>
-    ];
-
     const listComp = comp.find(List);
-    expect(listComp.prop("list")).toEqual(expectedList);
+    expect(typeof listComp.prop("list")).toEqual("object");
     expect(listComp.prop("styles")).toEqual({});
+  });
+
+  it("should not display home icon if at top of screen", () => {
+    const windowPosition = 0;
+    const expectedStyle = {
+      display: "none"
+    };
+    comp.instance().checkWindowHeightAndSetDisplayProp(null, windowPosition);
+    comp.update();
+    expect(comp.find(List).prop("list")[0].props.style).toEqual(expectedStyle);
+  });
+
+  it("should display home icon not at top of screen", () => {
+    const windowPosition = 50;
+    const expectedStyle = {
+      display: "block"
+    };
+    comp.instance().checkWindowHeightAndSetDisplayProp(null, windowPosition);
+    comp.update();
+    expect(comp.find(List).prop("list")[0].props.style).toEqual(expectedStyle);
   });
 });
