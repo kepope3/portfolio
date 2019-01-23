@@ -1,15 +1,9 @@
 .nav {
-  min-height: 400px;
-  display: table;
-  margin: auto;
   text-align: center;
 }
 
 .list {
   padding-left: 0;
-  display: table-cell;
-  vertical-align: middle;
-
   margin-bottom: 0;
 }
 
