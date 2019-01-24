@@ -20,8 +20,7 @@ export default () => (
         passion which I didn't know I had.
       </p>
       <p>
-        Coding now is as big a part of my life than just about anything else and
-        has also allowed me to live and work in the place that I love.
+        Coding now is as big a part of my life than just about anything else.
       </p>
     </div>
   </div>
