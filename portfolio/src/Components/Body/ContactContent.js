@@ -25,7 +25,9 @@ export default () => (
       </h3>
     </div>
     <div className="col-7 text-center">
-      <p>pope_446@hotmail.com</p>
+      <p>
+        <a href="mailto:pope_446@hotmail.com">pope_446@hotmail.com</a>
+      </p>
     </div>
   </div>
 );

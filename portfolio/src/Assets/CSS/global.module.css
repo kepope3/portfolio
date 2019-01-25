@@ -30,12 +30,12 @@
   color: #bfbfbf;
 }
 
-.global li a {
+.global a {
   transition: color 0.4s;
   color: #bfbfbf;
 }
 
-.global li a:hover {
+.global a:hover {
   color: black;
   cursor: pointer;
   font-weight: 900;
