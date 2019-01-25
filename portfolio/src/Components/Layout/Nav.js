@@ -34,7 +34,7 @@ export default class extends React.Component {
               <i className="fas fa-home" />
             </a>,
             <a href="#about">About</a>,
-            <a href="#resume">Resume</a>,
+            <a href="#resume">Résumé</a>,
             <a href="#contact">Contact</a>
           ]}
         />
