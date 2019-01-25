@@ -35,6 +35,11 @@
   color: #bfbfbf;
 }
 
+.global i {
+  vertical-align: middle;
+  padding-top: 6px;
+}
+
 .global a:hover {
   color: black;
   cursor: pointer;
