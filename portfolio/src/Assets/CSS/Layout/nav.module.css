@@ -1,0 +1,19 @@
+.nav ul li {
+  text-align: center;
+  font-size: 65px;
+  font-weight: 500;
+  list-style-type: none;
+}
+
+.list li:first-child {
+  position: fixed;
+  bottom: 2%;
+  left: 2%;
+  z-index: 1000;
+}
+
+@media screen and (max-width: 1024px) {
+  .nav ul li {
+    font-size: 55px;
+  }
+}
