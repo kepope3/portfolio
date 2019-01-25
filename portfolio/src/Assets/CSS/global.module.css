@@ -19,12 +19,36 @@
   line-height: 28px;
 }
 
+.global ul {
+  padding-left: 0;
+  margin-bottom: 0;
+  font-size: 30px;
+  list-style-position: inside;
+}
+
+.global li {
+  color: #bfbfbf;
+}
+
+.global li a {
+  transition: color 0.4s;
+  color: #bfbfbf;
+}
+
+.global li a:hover {
+  color: black;
+  cursor: pointer;
+  font-weight: 900;
+  text-decoration: none;
+}
+
 @media screen and (max-width: 1024px) {
-  .list li {
-    font-size: 55px;
-  }
   .global p {
     font-size: 20px;
     line-height: 25px;
+  }
+
+  .global ul {
+    font-size: 20px;
   }
 }

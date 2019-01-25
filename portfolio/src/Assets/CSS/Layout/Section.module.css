@@ -5,6 +5,7 @@
   display: table;
   min-height: 100vh;
   width: 100%;
+  padding: 20px 0;
 }
 .children {
   display: table-cell;

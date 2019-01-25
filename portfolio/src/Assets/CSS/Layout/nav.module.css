@@ -1,28 +1,8 @@
-.nav {
+.nav ul li {
   text-align: center;
-}
-
-.list {
-  padding-left: 0;
-  margin-bottom: 0;
-}
-
-.list li {
-  display: block;
   font-size: 65px;
-}
-
-.list li a {
-  color: #bfbfbf;
-  transition: 0.4s;
   font-weight: 500;
-}
-
-.list li a:hover {
-  color: black;
-  cursor: pointer;
-  font-weight: 900;
-  text-decoration: none;
+  list-style-type: none;
 }
 
 .list li:first-child {
@@ -33,7 +13,7 @@
 }
 
 @media screen and (max-width: 1024px) {
-  .list li {
+  .nav ul li {
     font-size: 55px;
   }
 }

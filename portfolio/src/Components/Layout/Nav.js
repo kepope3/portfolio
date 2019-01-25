@@ -1,6 +1,6 @@
 import React from "react";
 import List from "../Shared/List";
-import styles from "./../../Assets/CSS/Layout/nav.module.css";
+import styles from "./../../Assets/CSS/Layout/Nav.module.css";
 export default class extends React.Component {
   constructor(props) {
     super(props);
