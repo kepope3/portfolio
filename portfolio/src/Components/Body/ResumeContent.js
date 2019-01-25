@@ -5,8 +5,8 @@ import styles from "./../../Assets/CSS/Body/ResumeContent.module.css";
 export default () => (
   <div className="row">
     <div className="col-md-4">
-      <h2>Resume</h2>
-      <h3>Skills and experiences.</h3>
+      <h2>Résumé</h2>
+      <h3>Skills and experience.</h3>
     </div>
     <div className="col-md-8">
       <List
