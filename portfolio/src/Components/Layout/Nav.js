@@ -4,7 +4,7 @@ import styles from "./../../Assets/CSS/Layout/Nav.module.css";
 export default class extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { homeIconDisplayProp: "" };
+    this.state = { homeIconDisplayProp: "none" };
   }
 
   checkWindowHeightAndSetDisplayProp = (e, position) => {
