@@ -11,6 +11,13 @@ describe("Nav component", () => {
     expect(listComp.prop("styles")).toEqual({});
   });
 
+  it("should not display home iconwhen site firt loads", () => {
+    const expectedStyle = {
+      display: "none"
+    };
+    expect(comp.find(List).prop("list")[0].props.style).toEqual(expectedStyle);
+  });
+
   it("should not display home icon when at the top of the screen", () => {
     const windowPosition = 0;
     const expectedStyle = {
