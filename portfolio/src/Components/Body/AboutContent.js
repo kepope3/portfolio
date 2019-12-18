@@ -8,20 +8,30 @@ export default () => (
     <div className="col-lg-8">
       <p>Hi there and thanks for visiting my site!</p>
       <p>
-        My name is Keith, I moved to Newquay, Cornwall when I was 21 and
-        absolutely fell in love with the lifestyle, the waves, the surf, the
-        coastal path, the travelling atmosphere, the great people and even the
-        seagulls...
+        My name is Keith and I love to code - place a problem in front of me and
+        I will become obsessed with it until it is complete with excellence. I
+        thoroughly enjoy a good challenge and I consider the best way of finding
+        and coding the most suitable solution is through good team-work and
+        dedication.
       </p>
       <p>
-        I loved this place so much that I left for three years to study at
-        university so that I could live here comfortably all year round. During
-        my time at University I found that programming unlocked creativity and
-        passion which I didn't know I had.
+        My three years at university gave me a solid foundation to work from,
+        but it wasn't until I entered the industry that I put all the pieces
+        together and really learned what it means to become a good developer.
       </p>
       <p>
-        Coding now is as big a part of my life than just about anything else.
+        I am an advocate of clean code and architecture, I believe that code
+        should be simple, elegant, easily maintainable and extensible. I have
+        concluded that careful thought and consideration should take place
+        before writing any code at all.
       </p>
+      <p>
+        You should face every story with an open mind and consider all
+        possibilities, the best way to do this is by working closely within a
+        team. Teams should discuss and come to a conclusion in order to find the
+        best solutions and to meet best practices.
+      </p>
+      <p>Test test test and try to meet 100% test coverage :)</p>
     </div>
   </div>
 );
