@@ -20,15 +20,15 @@ export default () => (
         together and really learned what it means to become a good developer.
       </p>
       <p>
-        I am an advocate of clean code and architecture, I believe that code
-        should be simple, elegant, easily maintainable and extensible. I have
-        concluded that careful thought and consideration should take place
-        before writing any code at all.
+        I am an advocate of clean code and architecture and believe that code
+        should be simple, elegant, easily maintainable and extensible. Careful
+        thought and consideration should take effect before writing any code at
+        all.
       </p>
       <p>
         You should face every story with an open mind and consider all
         possibilities, the best way to do this is by working closely within a
-        team. Teams should discuss and come to a conclusion in order to find the
+        team. Teams should discuss and come to shared conclusions to find the
         best solutions and to meet best practices.
       </p>
       <p>Test test test and try to meet 100% test coverage :)</p>
