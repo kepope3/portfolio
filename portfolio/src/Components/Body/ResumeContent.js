@@ -13,7 +13,7 @@ export default () => (
         styles={styles}
         list={[
           "First class degree in Computing",
-          "Three years industry experience",
+          "Four years industry experience",
           "ASP.NET / C# / JavaScript",
           "React / HTML / CSS / SQL",
           "TDD / Pair programming",
@@ -24,7 +24,7 @@ export default () => (
             rel="noopener noreferrer"
           >
             View website source code <i className="fab fa-github" />
-          </a>
+          </a>,
         ]}
       />
     </div>
