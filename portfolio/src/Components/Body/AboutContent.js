@@ -10,14 +10,14 @@ export default () => (
       <p>
         My name is Keith and I love to code - place a problem in front of me and
         I will become obsessed with it until it is complete with excellence. I
-        thoroughly enjoy a good challenge and I consider the best way of finding
-        and coding the most suitable solution is through good team-work and
-        dedication.
+        thoroughly enjoy a good challenge, and I consider the best way of
+        finding and coding the most suitable solution is through good team-work
+        and dedication.
       </p>
       <p>
         My three years at university gave me a solid foundation to work from,
         but it wasn't until I entered the industry that I put all the pieces
-        together and really learned what it means to become a good developer.
+        together, and learned what it involves to become a good developer.
       </p>
       <p>
         I am an advocate of clean code and architecture and believe that code
@@ -27,9 +27,9 @@ export default () => (
       </p>
       <p>
         You should face every story with an open mind and consider all
-        possibilities, the best way to do this is by working closely within a
-        team. Teams should discuss and come to shared conclusions to find the
-        best solutions and to meet best practices.
+        possibilities. The best way to do this is by working closely within a
+        team. Teams should discuss and come to shared results to find the most
+        suitable solutions and to meet best practices.
       </p>
       <p>Test test test and try to meet 100% test coverage :)</p>
     </div>
