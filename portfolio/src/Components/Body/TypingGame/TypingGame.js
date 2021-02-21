@@ -8,6 +8,7 @@ export default () => {
   const [noChars, setNoChars] = useState(0);
   const [wpm, setwpm] = useState();
   const [mistakes, setMistakes] = useState(0);
+  const [textFieldDisabled, setTextFieldDisabled] = useState(false);
 
   useEffect(() => {
     getParagraph(setSentence);
@@ -16,6 +17,7 @@ export default () => {
   useEffect(() => {
     if (sentence.length === 1 && hasGameStarted) {
       setHasGameStarted(false);
+      setTextFieldDisabled(true);
     }
   }, [sentence, hasGameStarted]);
 
@@ -37,14 +39,15 @@ export default () => {
         )}
         <textarea
           id="inputArea"
+          disabled={textFieldDisabled}
           className={`${styles.textarea} form-control`}
-          onKeyPress={(e) => {
+          onChange={(e) => {
             if (sentence.length) {
               if (!hasGameStarted) {
                 setHasGameStarted(true);
               }
 
-              if (e.key === sentence[0]) {
+              if (e.target.value[e.target.value.length - 1] === sentence[0]) {
                 setNoChars(noChars + 1);
                 setSentence(sentence.substring(1));
               } else {
@@ -63,6 +66,7 @@ export default () => {
             document.getElementById("inputArea").value = "";
             setwpm(0);
             setMistakes(0);
+            setTextFieldDisabled(false);
           }}
         >
           <p>New sentence</p>
