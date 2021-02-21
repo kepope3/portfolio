@@ -1,0 +1,17 @@
+.sentence {
+  white-space: pre-wrap;
+  font-size: 30px;
+  color: #bfbab9;
+}
+
+.textarea.textarea.textarea {
+  font-size: "1.1rem";
+  color: black;
+  font-weight: 600;
+}
+
+.firstChar {
+  background-color: #912521;
+  position: absolute;
+  white-space: pre;
+}

@@ -11,9 +11,9 @@ describe("Nav component", () => {
     expect(listComp.prop("styles")).toEqual({});
   });
 
-  it("should not display home iconwhen site firt loads", () => {
+  it("should not display home icon when site firt loads", () => {
     const expectedStyle = {
-      display: "none"
+      display: "none",
     };
     expect(comp.find(List).prop("list")[0].props.style).toEqual(expectedStyle);
   });
@@ -21,7 +21,7 @@ describe("Nav component", () => {
   it("should not display home icon when at the top of the screen", () => {
     const windowPosition = 0;
     const expectedStyle = {
-      display: "none"
+      display: "none",
     };
     comp.instance().checkWindowHeightAndSetDisplayProp(null, windowPosition);
     comp.update();
@@ -31,7 +31,7 @@ describe("Nav component", () => {
   it("should display home icon when not at the top of the screen", () => {
     const windowPosition = 50;
     const expectedStyle = {
-      display: "block"
+      display: "block",
     };
     comp.instance().checkWindowHeightAndSetDisplayProp(null, windowPosition);
     comp.update();

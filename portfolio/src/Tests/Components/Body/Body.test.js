@@ -12,6 +12,7 @@ describe("Body component", () => {
     expect(comp.find("#about").find(Section)).toHaveLength(1);
     expect(comp.find("#resume").find(Section)).toHaveLength(1);
     expect(comp.find("#contact").find(Section)).toHaveLength(1);
+    expect(comp.find("#typingGame")).toHaveLength(1);
   });
   it("should have about content inside about section", () => {
     expect(comp.find("#about").find(AboutContent)).toHaveLength(1);

@@ -11,11 +11,11 @@ export default class extends React.Component {
     const a = position ? position : window.pageYOffset;
     if (a === 0) {
       this.setState({
-        homeIconDisplayProp: "none"
+        homeIconDisplayProp: "none",
       });
     } else {
       this.setState({
-        homeIconDisplayProp: "block"
+        homeIconDisplayProp: "block",
       });
     }
   };
@@ -35,7 +35,8 @@ export default class extends React.Component {
             </a>,
             <a href="#about">About</a>,
             <a href="#resume">Résumé</a>,
-            <a href="#contact">Contact</a>
+            <a href="#typingGame">Typing game</a>,
+            <a href="#contact">Contact</a>,
           ]}
         />
       </div>
