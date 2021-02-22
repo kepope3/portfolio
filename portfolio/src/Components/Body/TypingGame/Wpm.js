@@ -8,7 +8,7 @@ export default ({ noChars, getwpmCallback }) => {
     const calculatedwpm = Math.round(noChars / 5 / (ms / 60));
 
     setwpm(calculatedwpm);
-    getwpmCallback(wpm);
+    getwpmCallback(calculatedwpm);
   }, [noChars, ms]);
 
   useEffect(() => {
