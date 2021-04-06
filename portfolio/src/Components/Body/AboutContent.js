@@ -20,7 +20,7 @@ export default () => (
         together, and learned what it involves to become a good developer.
       </p>
       <p>
-        I am an advocate of clean code and architecture and believe that code
+        I am an advocate of clean code and architecture and I believe that code
         should be simple, elegant, easily maintainable and extensible. Careful
         thought and consideration should take effect before writing any code at
         all.
@@ -28,7 +28,7 @@ export default () => (
       <p>
         You should face every story with an open mind and consider all
         possibilities. The best way to do this is by working closely within a
-        team. Teams should discuss and come to shared results to find the most
+        team. Teams should discuss and come to shared ideas to find the most
         suitable solutions and to meet best practices.
       </p>
       <p>Test test test and try to meet 100% test coverage :)</p>
