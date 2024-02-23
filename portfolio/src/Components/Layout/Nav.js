@@ -35,7 +35,7 @@ export default class extends React.Component {
             </a>,
             <a href="#about">About</a>,
             <a href="#resume">Résumé</a>,
-            <a href="#typingGame">Typing game</a>,
+            <a href="#typingGame">Game</a>,
             <a href="#contact">Contact</a>,
           ]}
         />
