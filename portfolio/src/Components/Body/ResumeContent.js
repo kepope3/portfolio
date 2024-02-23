@@ -13,8 +13,8 @@ export default () => (
         styles={styles}
         list={[
           "First class degree in Computing",
-          "Four years industry experience",
-          "ASP.NET / C# / JavaScript",
+          "Seven years industry experience",
+          ".NET / C# / JavaScript / TypeScript / Java",
           "React / HTML / CSS / SQL",
           "TDD / Pair programming",
           "Cloud Services / Devops",

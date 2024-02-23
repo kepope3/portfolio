@@ -6,32 +6,34 @@ export default () => (
       <h3>What I am all about.</h3>
     </div>
     <div className="col-lg-8">
-      <p>Hi there and thanks for visiting my site!</p>
+      <p>Hi there, and thanks for visiting my site!</p>
       <p>
-        My name is Keith and I love to code - place a problem in front of me and
-        I will become obsessed with it until it is complete with excellence. I
-        thoroughly enjoy a good challenge, and I consider the best way of
-        finding and coding the most suitable solution is through good team-work
-        and dedication.
+        I'm Keith, a coding enthusiast who thrives on challenges. Present me
+        with a problem, and I'll be engrossed in solving it with excellence. I
+        relish a good challenge and firmly believe that the key to finding and
+        coding the most effective solutions lies in dedicated teamwork.
       </p>
       <p>
-        My three years at university gave me a solid foundation to work from,
-        but it wasn't until I entered the industry that I put all the pieces
-        together, and learned what it involves to become a good developer.
+        My journey began with three years of university, laying a solid
+        foundation in software development. However, it was in the professional
+        world where I truly blossomed, connecting the dots to understand what it
+        takes to be an exceptional developer.
       </p>
       <p>
-        I am an advocate of clean code and architecture and I believe that code
-        should be simple, elegant, easily maintainable and extensible. Careful
-        thought and consideration should take effect before writing any code at
-        all.
+        As an advocate for clean code and architecture, I stand by the principle
+        that code should be simple, elegant, and easily maintainable. Every line
+        of code I write is preceded by careful thought and planning.
       </p>
       <p>
-        You should face every story with an open mind and consider all
-        possibilities. The best way to do this is by working closely within a
-        team. Teams should discuss and come to shared ideas to find the most
-        suitable solutions and to meet best practices.
+        Approaching every project with an open mind is crucial. I value
+        collaborative team discussions to brainstorm and converge on the most
+        suitable solutions, ensuring adherence to best practices.
       </p>
-      <p>Test test test and try to meet 100% test coverage :)</p>
+      <p>
+        And when it comes to testing? Well, let's just say I aim for 100% test
+        coverage - always striving to ensure reliability and quality!
+      </p>
+      <p>Happy coding!</p>
     </div>
   </div>
 );
