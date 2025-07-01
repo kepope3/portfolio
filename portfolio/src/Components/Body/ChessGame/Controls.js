@@ -54,6 +54,7 @@ export function Controls({
       <label>
         Aggression:
         <button
+          style={{ marginLeft: "0.25rem" }}
           onClick={() => onMobilityChange(mobilityFactor - 0.005)}
           disabled={disableAll}
         >

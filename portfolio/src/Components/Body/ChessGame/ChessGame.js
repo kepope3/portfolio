@@ -167,7 +167,7 @@ export default function ChessGame() {
 
   return (
     <div className={styles.container}>
-      <h2>Chess Game</h2>
+      <h2>Chess Engine</h2>
       <Controls
         onMobilityChange={setMF}
         mobilityFactor={mf}
