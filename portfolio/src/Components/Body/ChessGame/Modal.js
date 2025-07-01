@@ -8,7 +8,9 @@ export function HelpModal({ title, children, onClose }) {
       <div className={styles.modalContent}>
         <h3>{title}</h3>
         {children}
-        <button onClick={onClose}>Close</button>
+        <button className={styles.closeButton} onClick={onClose}>
+          Close
+        </button>
       </div>
     </div>
   );

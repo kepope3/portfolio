@@ -10,6 +10,9 @@ const tt = new Map();
 // Killer moves table (store top 2 killers per depth)
 const killers = {};
 
+// History heuristic table (moveKey -> score)
+const history = {};
+
 // === Time Control: 1-minute search cap ===
 let searchStartTime = 0;
 let maxSearchTime = 30 * 1000;
@@ -30,7 +33,7 @@ function terminalScore(game, depth, isMaximizing) {
   return 0;
 }
 
-// === Move ordering: captures first (MVV/LVA), then killer moves, then others ===
+// === Move ordering: MVV/LVA, killers, then history-heuristic, then others ===
 function orderedMoves(game, depth = 0) {
   const all = game.moves({ verbose: true });
   const scored = all.map((m) => {
@@ -43,10 +46,13 @@ function orderedMoves(game, depth = 0) {
       if (killers[depth][0] === key) score = 80;
       else if (killers[depth][1] === key) score = 70;
     }
-    return { move: m, score, san: m.san };
+    // history heuristic: quiet moves that caused beta-cuts before
+    const moveKey = `${m.from}${m.to}`;
+    score += history[moveKey] || 0;
+    return { move: m, score, san: m.san, key: moveKey };
   });
   scored.sort((a, b) => b.score - a.score);
-  return scored.map((s) => s.san);
+  return scored.map((s) => ({ san: s.san, key: s.key }));
 }
 
 // === Core Evaluation: material + mobility ===
@@ -74,15 +80,9 @@ export function quiescence(
   qDepth = 4,
   mobilityFactor = 0
 ) {
-  // bail out if we've exceeded our time budget
   if (isOutOfTime()) {
-    return {
-      score: evaluateBoard(game, mobilityFactor),
-      move: null,
-      line: [],
-    };
+    return { score: evaluateBoard(game, mobilityFactor), move: null, line: [] };
   }
-
   if (isTerminal(game)) {
     return {
       score: terminalScore(game, qDepth, isMaximizing),
@@ -91,7 +91,7 @@ export function quiescence(
     };
   }
 
-  const stand = evaluateBoard(game, mobilityFactor);
+  let stand = evaluateBoard(game, mobilityFactor);
   if (isMaximizing) alpha = Math.max(alpha, stand);
   else beta = Math.min(beta, stand);
   if (beta <= alpha || qDepth <= 0) {
@@ -108,7 +108,6 @@ export function quiescence(
 
   for (let m of caps) {
     if (isOutOfTime()) break;
-
     game.move(m.san);
     if (game.in_checkmate()) {
       game.undo();
@@ -118,7 +117,6 @@ export function quiescence(
         line: [m.san],
       };
     }
-
     const res = quiescence(
       game,
       alpha,
@@ -128,7 +126,6 @@ export function quiescence(
       mobilityFactor
     );
     game.undo();
-
     if (
       (isMaximizing && res.score > best.score) ||
       (!isMaximizing && res.score < best.score)
@@ -152,13 +149,8 @@ export function alphabeta(
   isMaximizing,
   mobilityFactor = 0
 ) {
-  // bail out if we've exceeded our time budget
   if (isOutOfTime()) {
-    return {
-      score: evaluateBoard(game, mobilityFactor),
-      move: null,
-      line: [],
-    };
+    return { score: evaluateBoard(game, mobilityFactor), move: null, line: [] };
   }
 
   const key = `${game.fen()}|${depth}`;
@@ -183,21 +175,21 @@ export function alphabeta(
     move: null,
     line: [],
   };
+  const movesWithKeys = orderedMoves(game, depth);
 
-  const moves = orderedMoves(game, depth);
-  for (let san of moves) {
+  for (let { san, key: moveKey } of movesWithKeys) {
     if (isOutOfTime()) break;
 
     const moveObj = game.move(san);
     if (game.in_checkmate()) {
       game.undo();
-      const res = {
+      const mateRes = {
         score: (isMaximizing ? 1 : -1) * (MATE_SCORE - depth),
         move: san,
         line: [san],
       };
-      tt.set(key, res);
-      return res;
+      tt.set(key, mateRes);
+      return mateRes;
     }
 
     const res = alphabeta(
@@ -222,11 +214,14 @@ export function alphabeta(
     else beta = Math.min(beta, score);
 
     if (beta <= alpha) {
+      // store killer move if not a capture
       if (!moveObj.captured) {
         killers[depth] = killers[depth] || [];
         killers[depth].unshift(san);
         killers[depth] = killers[depth].slice(0, 2);
       }
+      // update history heuristic
+      history[moveKey] = (history[moveKey] || 0) + depth * depth;
       break;
     }
   }
@@ -235,12 +230,12 @@ export function alphabeta(
   return best;
 }
 
-// === Public Entry Point: time‐capped, iterative‐deepening search ===
+// === Public Entry Point: time‐capped, iterative‐deepening + aspiration windows ===
 /**
  * Think for up to `searchTimeMs` (or until `maxDepth`),
- * returning the best fully‐searched result.
+ * using aspiration windows to speed αβ.
  *
- * @param {Chess} game        chess.js game
+ * @param {Chess} game         chess.js game
  * @param {number} searchTimeMs  time budget in ms
  * @param {number} maxDepth      hard ceiling on depth
  * @param {number} mobilityFactor
@@ -252,38 +247,50 @@ export function searchRoot(
   mobilityFactor = 0,
   maxDepth = 10
 ) {
-  // clear old cache, stamp clock
   tt.clear();
   searchStartTime = Date.now();
   maxSearchTime = searchTimeMs;
 
-  // initial “stand‐pat” at depth 0
+  // initial stand-pat
   let bestResult = {
     score: evaluateBoard(game, mobilityFactor),
     move: null,
     line: [],
   };
+  let lastScore = bestResult.score;
+  const windowDelta = 50; // aspiration window half-width
 
-  // iterative deepening loop
   for (let depth = 1; depth <= maxDepth; depth++) {
-    // bail if no time to start this next iteration
     if (isOutOfTime()) break;
 
-    // run a depth‐limited search to `depth`
-    const result = alphabeta(
+    // aspiration window around lastScore
+    let alpha = lastScore - windowDelta;
+    let beta = lastScore + windowDelta;
+    let result = alphabeta(
       game,
       depth,
-      -Infinity,
-      Infinity,
+      alpha,
+      beta,
       game.turn() === "w",
       mobilityFactor
     );
 
-    // if we finished before the timer expired, record it
+    // if fail-low or fail-high, re-search full window once
+    if (!isOutOfTime() && (result.score <= alpha || result.score >= beta)) {
+      result = alphabeta(
+        game,
+        depth,
+        -Infinity,
+        Infinity,
+        game.turn() === "w",
+        mobilityFactor
+      );
+    }
+
     if (!isOutOfTime()) {
       bestResult = result;
+      lastScore = result.score;
     } else {
-      // time expired *during* this depth → keep previous best
       break;
     }
   }

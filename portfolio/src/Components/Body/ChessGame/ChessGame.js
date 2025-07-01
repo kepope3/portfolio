@@ -146,26 +146,60 @@ export default function ChessGame() {
           <p>
             I developed this chess engine entirely in JavaScript using{" "}
             <code>chess.js</code> for move validation. It performs depth-limited
-            minimax search with α‑β pruning, quiescence search, and MVV/LVA plus
+            minimax search with α-β pruning, quiescence search, and MVV/LVA plus
             killer-move ordering to efficiently explore tactical lines.
           </p>
           <p>
-            Quiescence Search extends the search at leaf nodes to resolve
-            capture sequences until the position quiets down. This avoids the
+            Quiescence search extends the search at leaf nodes to resolve
+            capture sequences until the position “quiets down.” This avoids the
             horizon effect by ensuring the engine doesn’t stop its search in the
             middle of a tactical exchange.
           </p>
           <p>
-            The current evaluation function is based on material balance and
-            mobility.
+            The evaluation function is based on material balance and mobility:
+            it scores the material difference (with standard piece values) plus
+            a small bonus for the number of legal moves available.
           </p>
           <p>
             Increasing Aggression causes the engine to work harder to create
-            space for its pieces, it causes it to play more aggressively and
-            take pieces.
+            space for its pieces, making it play more aggressively and pursue
+            material.
           </p>
-
-          <p>You can move a piece at any time simply by dragging it.</p>
+          <p>
+            To move a piece, simply drag it to your desired square at any time.
+          </p>
+          <hr />
+          <h4>New Optimizations</h4>
+          <p>
+            <strong>History Heuristic:</strong> The engine tracks which
+            non-capturing moves have historically led to β-cuts and boosts them
+            in move ordering, so strong “quiet” moves are tried earlier.
+          </p>
+          <p>
+            <strong>Aspiration Windows:</strong> Instead of searching with an
+            infinite α/β window each depth, we search within a narrow band
+            around the previous iteration’s score (±Δ). If the result falls
+            outside, we re-search with the full window—this typically cuts down
+            on search effort.
+          </p>
+          <p>
+            <strong>Iterative Deepening & Time Cap:</strong> The engine searches
+            depth 1, then 2, then 3, … up to your hard ceiling, stopping when
+            the timer expires. You always get the deepest fully-completed
+            result.
+          </p>
+          <p>
+            <strong>Transposition Table Clearing:</strong> At the start of each
+            timed search we clear the TT so all cached results are from the
+            current thinking session—this prevents stale entries from
+            short‐circuiting a fresh search at a new time cap.
+          </p>
+          <p>
+            <strong>Enhanced Move Ordering:</strong> Moves are now ordered by
+            MVV/LVA, killer moves, history scores, and then all others—so the
+            most promising moves are examined first, yielding faster α-β
+            cutoffs.
+          </p>
         </HelpModal>
       )}
 
