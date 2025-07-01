@@ -136,7 +136,7 @@ export default function ChessGame() {
         setThinkTimes((ts) => [...ts, parseFloat(elapsed)]);
       }
       setIsThinking(false);
-    }, 50);
+    }, 10);
   };
 
   const goBack = () => {

@@ -1,6 +1,24 @@
 // Simple material values for evaluation
 const pieceValues = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
 
+// Extreme scores for mate
+const MATE_SCORE = 100000;
+
+// Helper: Detect terminal positions (mate or draw)
+function isTerminal(game) {
+  return game.in_checkmate() || game.in_stalemate() || game.in_draw();
+}
+
+// Helper: Assign scores for mate and draw
+function terminalScore(game, depth, isMaximizing) {
+  if (game.in_checkmate()) {
+    // If side to move is mated, bad for them
+    return (isMaximizing ? -1 : 1) * (MATE_SCORE - depth);
+  }
+  // stalemate or other draw
+  return 0;
+}
+
 // Optional: simple move ordering (captures first)
 function orderedMoves(game, isEnabled = false) {
   const all = game.moves({ verbose: true });
@@ -44,6 +62,14 @@ export function quiescence(
   qDepth = 4,
   mobilityFactor = 0
 ) {
+  if (isTerminal(game)) {
+    return {
+      score: terminalScore(game, qDepth, isMaximizing),
+      move: null,
+      line: [],
+    };
+  }
+
   const standPat = evaluateBoard(game, mobilityFactor);
   if (isMaximizing) alpha = Math.max(alpha, standPat);
   else beta = Math.min(beta, standPat);
@@ -99,6 +125,15 @@ export function minimax(
   useMO = false,
   mobilityFactor = 0
 ) {
+  // Terminal check
+  if (isTerminal(game)) {
+    return {
+      score: terminalScore(game, depth, isMaximizing),
+      move: null,
+      line: [],
+    };
+  }
+
   const alphaInit = -Infinity;
   const betaInit = Infinity;
   if (depth === 0) {
@@ -107,9 +142,6 @@ export function minimax(
           .score
       : evaluateBoard(game, mobilityFactor);
     return { score: evalScore, move: null, line: [] };
-  }
-  if (game.game_over()) {
-    return { score: evaluateBoard(game, mobilityFactor), move: null, line: [] };
   }
 
   // move ordering if desired
@@ -150,13 +182,19 @@ export function alphabeta(
   useMO = false,
   mobilityFactor = 0
 ) {
+  // Terminal check
+  if (isTerminal(game)) {
+    return {
+      score: terminalScore(game, depth, isMaximizing),
+      move: null,
+      line: [],
+    };
+  }
+
   if (depth === 0) {
     return useQ
       ? quiescence(game, alpha, beta, isMaximizing, 4, mobilityFactor)
       : { score: evaluateBoard(game, mobilityFactor), move: null, line: [] };
-  }
-  if (game.game_over()) {
-    return { score: evaluateBoard(game, mobilityFactor), move: null, line: [] };
   }
 
   // move ordering: captures first
