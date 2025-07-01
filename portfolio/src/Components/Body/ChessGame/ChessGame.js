@@ -17,13 +17,11 @@ function BoardDisplay({ fen, onDrop, width, overlayText }) {
 }
 
 // Thinking and performance stats
-function ThinkingStats({ score, line, lastTime, avgTime }) {
+function ThinkingStats({ score, line }) {
   return (
     <div className={styles.thinking}>
       <p>Score: {score.toFixed(2)}</p>
-      <p>Line: {line.join(" ")}</p>
-      <p>Think time: {lastTime.toFixed(2)} s</p>
-      <p>Avg time: {avgTime} s</p>
+      <p>Engine line: {line.join(" ")}</p>
     </div>
   );
 }
@@ -43,8 +41,6 @@ export default function ChessGame() {
 
   // Thinking stats
   const [thinkingInfo, setThinkingInfo] = useState({ score: 0, line: [] });
-  const [thinkTime, setThinkTime] = useState(0);
-  const [thinkTimes, setThinkTimes] = useState([]);
   const [isThinking, setIsThinking] = useState(false);
 
   // Game status
@@ -77,10 +73,6 @@ export default function ChessGame() {
     }
   }, [fen]);
 
-  const avgTime = thinkTimes.length
-    ? (thinkTimes.reduce((sum, t) => sum + t, 0) / thinkTimes.length).toFixed(2)
-    : "0.00";
-
   // Compute navigation availability
   const canGoBack = !isThinking && currentIndex > 0;
   const canGoForward = !isThinking && currentIndex < history.length - 1;
@@ -112,10 +104,7 @@ export default function ChessGame() {
         const newFen = game.fen();
         setHistory((h) => [...h.slice(0, idx + 1), newFen]);
         setCurrentIndex((i) => i + 1);
-        const elapsed = ((performance.now() - start) / 1000).toFixed(2);
         setThinkingInfo({ score, line });
-        setThinkTime(parseFloat(elapsed));
-        setThinkTimes((ts) => [...ts, parseFloat(elapsed)]);
       }
       setIsThinking(false);
     }, 10);
@@ -133,8 +122,6 @@ export default function ChessGame() {
     setHistory([game.fen()]);
     setCurrentIndex(0);
     setThinkingInfo({ score: evaluateBoard(game), line: [] });
-    setThinkTime(0);
-    setThinkTimes([]);
     setGameOver(false);
     setStatus("");
   };
@@ -238,12 +225,7 @@ export default function ChessGame() {
         }
       />
 
-      <ThinkingStats
-        score={thinkingInfo.score}
-        line={thinkingInfo.line}
-        lastTime={thinkTime}
-        avgTime={avgTime}
-      />
+      <ThinkingStats score={thinkingInfo.score} line={thinkingInfo.line} />
     </div>
   );
 }
