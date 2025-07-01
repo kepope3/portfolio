@@ -2,7 +2,7 @@ import React from "react";
 import styles from "../../../Assets/CSS/Body/chessGame.module.css";
 import { HelpModal } from "./Modal";
 
-// Game controls: depth buttons, options, move/reset/navigation
+// Game controls: depth buttons, aggression toggle, feature checkboxes, and navigation
 export function Controls({
   depth,
   useAB,
@@ -54,16 +54,14 @@ export function Controls({
       <label>
         Aggression:
         <button
-          style={{ marginLeft: "0.25rem" }}
           onClick={() => onMobilityChange(mobilityFactor - 0.005)}
           disabled={disableAll}
         >
           -
         </button>
-        <span
-          className={styles.depthDisplay}
-          style={{ margin: "0 2px" }}
-        >{` ${displayMF} `}</span>
+        <span className={styles.depthDisplay} style={{ margin: "0 2px" }}>
+          {` ${displayMF} `}
+        </span>
         <button
           onClick={() => onMobilityChange(mobilityFactor + 0.005)}
           disabled={disableAll}
@@ -72,14 +70,14 @@ export function Controls({
         </button>
       </label>
 
-      <label>
+      {/* <label>
         <input
           type="checkbox"
           checked={useAB}
           onChange={onToggleAB}
           disabled={disableAll}
         />{" "}
-        Use alpha-beta pruning
+        Use Alpha‑Beta Pruning & Caching
         <span className={styles.help} onClick={() => setShowABHelp(true)}>
           ?
         </span>
@@ -90,9 +88,9 @@ export function Controls({
           type="checkbox"
           checked={useQ}
           onChange={onToggleQ}
-          disabled={disableAll}
+          disabled={disableAll || !useAB}
         />{" "}
-        Use quiescence search
+        Use Quiescence Search
         <span className={styles.help} onClick={() => setShowQHelp(true)}>
           ?
         </span>
@@ -103,20 +101,20 @@ export function Controls({
           type="checkbox"
           checked={useMO}
           onChange={onToggleMO}
-          disabled={disableAll}
+          disabled={disableAll || !useAB}
         />{" "}
-        Use move ordering
+        Use Move Ordering (MVV/LVA & Killers)
         <span className={styles.help} onClick={() => setShowMOHelp(true)}>
           ?
         </span>
-      </label>
+      </label> */}
 
       <button
         onClick={onMakeMove}
         disabled={disableAll}
         style={{ background: "#3dd164" }}
       >
-        {"Execute Engine Move"}
+        Execute Engine Move
       </button>
       <button onClick={onReset} disabled={disableAll}>
         Reset
@@ -130,56 +128,23 @@ export function Controls({
 
       {showABHelp && (
         <HelpModal
-          title="Alpha-Beta Pruning"
+          title="Alpha‑Beta Pruning & Caching"
           onClose={() => setShowABHelp(false)}
         >
           <p>
-            Alpha-Beta pruning skips branches that cannot influence the final
-            minimax result, dramatically reducing the search tree.
+            When enabled, the engine applies α‑β pruning <em>and</em> a
+            Transposition Table to cache previous positions. This combination
+            skips irrelevant branches and never re-searches the same FEN+depth,
+            dramatically reducing the tree size.
           </p>
-          <pre
-            className={styles.modalBody}
-          >{`// engine.js :\nexport function alphabeta(
-            game,
-            depth,
-            alpha,
-            beta,
-            isMaximizing,
-            useQ = false,
-            useMO = false
-          ) {
-            if (depth === 0) {
-              return useQ
-                ? quiescence(game, alpha, beta, isMaximizing)
-                : { score: evaluateBoard(game), move: null, line: [] };
-            }
-            if (game.game_over()) {
-              return { score: evaluateBoard(game), move: null, line: [] };
-            }
-          
-            // move ordering: captures first
-            const moves = orderedMoves(game, useMO);
-            let best = { score: null, move: null, line: [] };
-          
-            for (let mSan of moves) {
-              game.move(mSan);
-              const result = alphabeta(game, depth - 1, alpha, beta, !isMaximizing, useQ);
-              game.undo();
-          
-              const currentScore = result.score;
-              if (
-                best.move === null ||
-                (isMaximizing && currentScore > best.score) ||
-                (!isMaximizing && currentScore < best.score)
-              ) {
-                best = { score: currentScore, move: mSan, line: [mSan, ...result.line] };
-              }
-              if (isMaximizing) alpha = Math.max(alpha, currentScore);
-              else beta = Math.min(beta, currentScore);
-              if (beta <= alpha) break;
-            }
-            return best;
-          }`}</pre>
+          <pre className={styles.modalBody}>{`// Key snippet in engine.js:
+  export function alphabeta(game, depth, alpha, beta, isMaximizing, useQ=false, useMO=false) {
+    const key = \`\${game.fen()}|\${depth}|\${useQ}|\${useMO}\`;
+    if (tt.has(key)) return tt.get(key);
+    // ... alpha-beta loop with pruning ...
+    tt.set(key, best);
+    return best;
+  }`}</pre>
         </HelpModal>
       )}
 
@@ -189,74 +154,38 @@ export function Controls({
           onClose={() => setShowQHelp(false)}
         >
           <p>
-            Resolves tactical captures at leaf nodes to avoid the horizon
-            effect.
+            Resolves only capture sequences past the fixed depth to avoid the
+            horizon effect. Requires α‑β pruning to be enabled.
           </p>
-          <pre
-            className={styles.modalBody}
-          >{`// engine.js:\n export function quiescence(game, alpha, beta, isMaximizing, qDepth = 4) {
-            const standPat = evaluateBoard(game);
-            if (isMaximizing) alpha = Math.max(alpha, standPat);
-            else beta = Math.min(beta, standPat);
-            if (beta <= alpha || qDepth <= 0) {
-              return { score: standPat, move: null, line: [] };
-            }
-          
-            let captures = game.moves({ verbose: true }).filter((m) => m.captured);
-            // sort captures: MVV/LVA
-            captures.sort((a, b) => {
-              const vA = pieceValues[a.captured];
-              const vB = pieceValues[b.captured];
-              return vB - vA;
-            });
-          
-            let best = { score: standPat, move: null, line: [] };
-            for (let m of captures) {
-              game.move(m.san);
-              const result = quiescence(game, alpha, beta, !isMaximizing, qDepth - 1);
-              game.undo();
-          
-              const currentScore = result.score;
-              if (
-                (isMaximizing && currentScore > best.score) ||
-                (!isMaximizing && currentScore < best.score)
-              ) {
-                best = {
-                  score: currentScore,
-                  move: m.san,
-                  line: [m.san, ...result.line],
-                };
-              }
-              if (isMaximizing) alpha = Math.max(alpha, currentScore);
-              else beta = Math.min(beta, currentScore);
-              if (beta <= alpha) break;
-            }
-            return best;
-          }`}</pre>
+          <pre className={styles.modalBody}>{`// engine.js:
+  export function quiescence(game, alpha, beta, isMaximizing, qDepth = 4) {
+    const stand = evaluateBoard(game);
+    // update alpha/beta, then generate only captures (MVV/LVA)
+    // recursive quiescence until qDepth = 0 or no good captures
+  }`}</pre>
         </HelpModal>
       )}
 
       {showMOHelp && (
         <HelpModal title="Move Ordering" onClose={() => setShowMOHelp(false)}>
           <p>
-            Move ordering gives your search algorithm the “best” moves first so
-            that alpha-beta pruning can cut off the rest earlier.
+            Improves pruning by trying the strongest moves first:
+            <ul>
+              <li>
+                <strong>MVV/LVA</strong> for capture ordering.
+              </li>
+              <li>
+                <strong>Killer moves</strong> (quiet moves that caused previous
+                cutoffs).
+              </li>
+            </ul>
+            Requires α‑β pruning to be enabled.
           </p>
-          <pre
-            className={styles.modalBody}
-          >{`// engine.js:\n function orderedMoves(game, isEnabled = false) {
-  const all = game.moves({ verbose: true });
-
-  if (!isEnabled) {
-    return all.map((m) => m.san);
-  }
-
-  const caps = all
-    .filter((m) => m.captured)
-    .sort((a, b) => pieceValues[b.captured] - pieceValues[a.captured]);
-  const nonCaps = all.filter((m) => !m.captured);
-  return [...caps, ...nonCaps].map((m) => m.san);
-}`}</pre>
+          <pre className={styles.modalBody}>{`// engine.js:
+  function orderedMoves(game, useMO, depth) {
+    // score = MVV/LVA for captures, killer heuristic for quiet moves
+    // sort by score descending
+  }`}</pre>
         </HelpModal>
       )}
     </div>
