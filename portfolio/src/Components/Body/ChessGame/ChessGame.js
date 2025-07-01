@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from "react";
 import Chess from "chess.js";
 import { Chessboard } from "react-chessboard";
 import styles from "../../../Assets/CSS/Body/chessGame.module.css";
-import { alphabeta, minimax, evaluateBoard } from "./engine";
+import { evaluateBoard, searchRoot } from "./engine";
 import { Controls } from "./Controls";
 import { HelpModal } from "./Modal";
 
@@ -36,11 +36,8 @@ export default function ChessGame() {
   const fen = history[currentIndex];
 
   // Search settings
-  const [depth, setDepth] = useState(2);
+  const [time, setTime] = useState(10);
   const [mf, setMF] = useState(0.005);
-  const [useAB, setUseAB] = useState(true);
-  const [useQ, setUseQ] = useState(true);
-  const [useMO, setUseMO] = useState(true);
 
   const [showInfo, setShowInfo] = useState(false);
 
@@ -108,20 +105,7 @@ export default function ChessGame() {
     const idx = currentIndex;
     setTimeout(() => {
       const game = new Chess(fen);
-      const isMax = game.turn() === "w";
-      const searchDepth = useAB ? depth : Math.min(depth, 3);
-      const { move: bestMove, score, line } = useAB
-        ? alphabeta(
-            game,
-            searchDepth,
-            -Infinity,
-            Infinity,
-            isMax,
-            useQ,
-            useMO,
-            mf
-          )
-        : minimax(game, searchDepth, isMax, useQ, useMO, mf);
+      const { move: bestMove, score, line } = searchRoot(game, time * 1000, mf);
 
       if (bestMove) {
         game.move(bestMove);
@@ -155,14 +139,6 @@ export default function ChessGame() {
     setStatus("");
   };
 
-  const handleDepthChange = (newDepth) => {
-    let val = newDepth;
-    const limit = useAB ? 5 : 3;
-    if (val < 1) val = 1;
-    if (val > limit) val = limit;
-    setDepth(val);
-  };
-
   return (
     <div className={styles.container}>
       {showInfo && (
@@ -183,30 +159,29 @@ export default function ChessGame() {
             The current evaluation function is based on material balance and
             mobility.
           </p>
+          <p>
+            Increasing Aggression causes the engine to work harder to create
+            space for its pieces, it causes it to play more aggressively and
+            take pieces.
+          </p>
+
+          <p>You can move a piece at any time simply by dragging it.</p>
         </HelpModal>
       )}
 
       <h2>
-        Chess Engine{" "}
         <span className={styles.help} onClick={() => setShowInfo(true)}>
           ?
-        </span>
+        </span>{" "}
+        Chess Engine
       </h2>
       <Controls
+        time={time}
+        onTimeChange={setTime}
         onMobilityChange={setMF}
         mobilityFactor={mf}
-        depth={depth}
-        useAB={useAB}
-        useQ={useQ}
-        useMO={useMO}
-        onDepthChange={handleDepthChange}
-        onToggleAB={(e) => {
-          const enabled = e.target.checked;
-          setUseAB(enabled);
-          if (!enabled && depth > 3) setDepth(3);
-        }}
-        onToggleQ={(e) => setUseQ(e.target.checked)}
-        onToggleMO={(e) => setUseMO(e.target.checked)}
+        depth={time}
+        onDepthChange={setTime}
         onMakeMove={makeEngineMove}
         onReset={resetGame}
         onBack={goBack}

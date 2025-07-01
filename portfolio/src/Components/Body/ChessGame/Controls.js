@@ -2,9 +2,8 @@ import React from "react";
 import styles from "../../../Assets/CSS/Body/chessGame.module.css";
 
 export function Controls({
-  depth,
-  useAB,
-  onDepthChange,
+  time,
+  onTimeChange,
   onMobilityChange,
   mobilityFactor,
   onMakeMove,
@@ -15,24 +14,24 @@ export function Controls({
   canGoBack,
   canGoForward,
 }) {
-  const maxDepth = useAB ? 5 : 3;
+  const maxTime = 120;
   const displayMF = parseFloat(mobilityFactor.toFixed(3));
 
   return (
     <div className={styles.controls}>
       <label>
-        Level (Depth):
+        Time (in seconds):
         <button
           style={{ marginLeft: "0.25rem" }}
-          onClick={() => onDepthChange(depth - 1)}
-          disabled={disableAll || depth <= 1}
+          onClick={() => onTimeChange(time > 5 ? time - 5 : 5)}
+          disabled={disableAll || time <= 1}
         >
           -
         </button>
-        <span className={styles.depthDisplay}>{` ${depth} `}</span>
+        <span className={styles.depthDisplay}>{` ${time} `}</span>
         <button
-          onClick={() => onDepthChange(depth + 1)}
-          disabled={disableAll || depth >= maxDepth}
+          onClick={() => onTimeChange(time + 5)}
+          disabled={disableAll || time >= maxTime}
         >
           +
         </button>
