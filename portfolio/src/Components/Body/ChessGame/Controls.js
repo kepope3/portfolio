@@ -34,7 +34,7 @@ export function Controls({
   return (
     <div className={styles.controls}>
       <label>
-        Depth:
+        Level (Depth):
         <button
           style={{ marginLeft: "0.25rem" }}
           onClick={() => onDepthChange(depth - 1)}
@@ -52,7 +52,7 @@ export function Controls({
       </label>
 
       <label>
-        Aggression:
+        Aggression (Mobility Factor):
         <button
           style={{ marginLeft: "0.25rem" }}
           onClick={() => onMobilityChange(mobilityFactor - 0.005)}
