@@ -4,6 +4,7 @@ import { Chessboard } from "react-chessboard";
 import styles from "../../../Assets/CSS/Body/chessGame.module.css";
 import { alphabeta, minimax, evaluateBoard } from "./engine";
 import { Controls } from "./Controls";
+import { HelpModal } from "./Modal";
 
 // Chessboard display with overlay
 function BoardDisplay({ fen, onDrop, width, overlayText }) {
@@ -41,10 +42,7 @@ export default function ChessGame() {
   const [useQ, setUseQ] = useState(true);
   const [useMO, setUseMO] = useState(true);
 
-  // Help modals
-  const [showABHelp, setShowABHelp] = useState(false);
-  const [showQHelp, setShowQHelp] = useState(false);
-  const [showMOHelp, setShowMOHelp] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
 
   // Thinking stats
   const [thinkingInfo, setThinkingInfo] = useState({ score: 0, line: [] });
@@ -167,7 +165,33 @@ export default function ChessGame() {
 
   return (
     <div className={styles.container}>
-      <h2>Chess Engine</h2>
+      {showInfo && (
+        <HelpModal title="Engine Overview" onClose={() => setShowInfo(false)}>
+          <p>
+            I developed this chess engine entirely in JavaScript using{" "}
+            <code>chess.js</code> for move validation. It performs depth-limited
+            minimax search with α‑β pruning, quiescence search, and MVV/LVA plus
+            killer-move ordering to efficiently explore tactical lines.
+          </p>
+          <p>
+            Quiescence Search extends the search at leaf nodes to resolve
+            capture sequences until the position quiets down. This avoids the
+            horizon effect by ensuring the engine doesn’t stop its search in the
+            middle of a tactical exchange.
+          </p>
+          <p>
+            The current evaluation function is based on material balance and
+            mobility.
+          </p>
+        </HelpModal>
+      )}
+
+      <h2>
+        Chess Engine{" "}
+        <span className={styles.help} onClick={() => setShowInfo(true)}>
+          ?
+        </span>
+      </h2>
       <Controls
         onMobilityChange={setMF}
         mobilityFactor={mf}
@@ -190,12 +214,6 @@ export default function ChessGame() {
         disableAll={isThinking}
         canGoBack={canGoBack}
         canGoForward={canGoForward}
-        showABHelp={showABHelp}
-        showQHelp={showQHelp}
-        showMOHelp={showMOHelp}
-        setShowABHelp={setShowABHelp}
-        setShowQHelp={setShowQHelp}
-        setShowMOHelp={setShowMOHelp}
       />
 
       <BoardDisplay
