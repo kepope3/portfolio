@@ -34,7 +34,7 @@ function orderedMoves(game, isEnabled = false) {
   return [...caps, ...nonCaps].map((m) => m.san);
 }
 
-// Evaluate board by material balance + mobility (mobilityFactor) bonus (white positive)
+// Evaluate board by material balance + mobility bonus (white positive)
 export function evaluateBoard(game, mobilityFactor = 0) {
   const board = game.board();
   let total = 0;
@@ -46,7 +46,6 @@ export function evaluateBoard(game, mobilityFactor = 0) {
       }
     }
   }
-  // mobilityFactor bonus: mobilityFactor * number of legal moves
   const movesCount = game.moves().length;
   const sign = game.turn() === "w" ? 1 : -1;
   total += movesCount * mobilityFactor * sign;
@@ -78,16 +77,19 @@ export function quiescence(
   }
 
   let captures = game.moves({ verbose: true }).filter((m) => m.captured);
-  // sort captures: MVV/LVA
-  captures.sort((a, b) => {
-    const vA = pieceValues[a.captured];
-    const vB = pieceValues[b.captured];
-    return vB - vA;
-  });
+  captures.sort((a, b) => pieceValues[b.captured] - pieceValues[a.captured]);
 
   let best = { score: standPat, move: null, line: [] };
   for (let m of captures) {
     game.move(m.san);
+    if (game.in_checkmate()) {
+      game.undo();
+      return {
+        score: (isMaximizing ? 1 : -1) * (MATE_SCORE - qDepth),
+        move: m.san,
+        line: [m.san],
+      };
+    }
     const result = quiescence(
       game,
       alpha,
@@ -98,25 +100,24 @@ export function quiescence(
     );
     game.undo();
 
-    const currentScore = result.score;
     if (
-      (isMaximizing && currentScore > best.score) ||
-      (!isMaximizing && currentScore < best.score)
+      (isMaximizing && result.score > best.score) ||
+      (!isMaximizing && result.score < best.score)
     ) {
       best = {
-        score: currentScore,
+        score: result.score,
         move: m.san,
         line: [m.san, ...result.line],
       };
     }
-    if (isMaximizing) alpha = Math.max(alpha, currentScore);
-    else beta = Math.min(beta, currentScore);
+    if (isMaximizing) alpha = Math.max(alpha, result.score);
+    else beta = Math.min(beta, result.score);
     if (beta <= alpha) break;
   }
   return best;
 }
 
-// Plain minimax with optional quiescence and optional move ordering
+// Plain minimax with optional quiescence and move ordering, plus immediate mate detection
 export function minimax(
   game,
   depth,
@@ -125,7 +126,6 @@ export function minimax(
   useMO = false,
   mobilityFactor = 0
 ) {
-  // Terminal check
   if (isTerminal(game)) {
     return {
       score: terminalScore(game, depth, isMaximizing),
@@ -134,21 +134,29 @@ export function minimax(
     };
   }
 
-  const alphaInit = -Infinity;
-  const betaInit = Infinity;
   if (depth === 0) {
     const evalScore = useQ
-      ? quiescence(game, alphaInit, betaInit, isMaximizing, 4, mobilityFactor)
+      ? quiescence(game, -Infinity, Infinity, isMaximizing, 4, mobilityFactor)
           .score
       : evaluateBoard(game, mobilityFactor);
     return { score: evalScore, move: null, line: [] };
   }
 
-  // move ordering if desired
   const moves = orderedMoves(game, useMO);
   let best = { score: null, move: null, line: [] };
   for (let mSan of moves) {
     game.move(mSan);
+
+    // Immediate mate detection
+    if (game.in_checkmate()) {
+      game.undo();
+      return {
+        score: (isMaximizing ? 1 : -1) * (MATE_SCORE - depth),
+        move: mSan,
+        line: [mSan],
+      };
+    }
+
     const result = minimax(
       game,
       depth - 1,
@@ -171,7 +179,7 @@ export function minimax(
   return best;
 }
 
-// Minimax with alpha-beta and optional move ordering
+// Minimax with alpha-beta, plus immediate mate detection
 export function alphabeta(
   game,
   depth,
@@ -182,7 +190,6 @@ export function alphabeta(
   useMO = false,
   mobilityFactor = 0
 ) {
-  // Terminal check
   if (isTerminal(game)) {
     return {
       score: terminalScore(game, depth, isMaximizing),
@@ -197,12 +204,22 @@ export function alphabeta(
       : { score: evaluateBoard(game, mobilityFactor), move: null, line: [] };
   }
 
-  // move ordering: captures first
   const moves = orderedMoves(game, useMO);
   let best = { score: null, move: null, line: [] };
 
   for (let mSan of moves) {
     game.move(mSan);
+
+    // Immediate mate detection
+    if (game.in_checkmate()) {
+      game.undo();
+      return {
+        score: (isMaximizing ? 1 : -1) * (MATE_SCORE - depth),
+        move: mSan,
+        line: [mSan],
+      };
+    }
+
     const result = alphabeta(
       game,
       depth - 1,
