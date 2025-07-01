@@ -16,12 +16,22 @@ function BoardDisplay({ fen, onDrop, width, overlayText }) {
   );
 }
 
-// Thinking and performance stats
-function ThinkingStats({ score, line }) {
+// Thinking and performance stats, plus Copy PGN button
+function ThinkingStats({ score, line, movesHistory }) {
+  const copyPGN = () => {
+    const g = new Chess();
+    movesHistory.forEach((san) => g.move(san));
+    const pgn = g.pgn();
+    navigator.clipboard.writeText(pgn);
+  };
+
   return (
     <div className={styles.thinking}>
       <p>Score: {score.toFixed(2)}</p>
       <p>Engine line: {line.join(" ")}</p>
+      <button onClick={copyPGN} className={styles.copyButton}>
+        Copy PGN
+      </button>
     </div>
   );
 }
@@ -30,11 +40,12 @@ function ThinkingStats({ score, line }) {
 export default function ChessGame() {
   // Game state
   const [history, setHistory] = useState([new Chess().fen()]);
+  const [movesHistory, setMovesHistory] = useState([]); // SAN list
   const [currentIndex, setCurrentIndex] = useState(0);
   const fen = history[currentIndex];
 
   // Search settings
-  const [time, setTime] = useState(10);
+  const [time, setTime] = useState(10); // seconds
   const [mf, setMF] = useState(0.005);
 
   const [showInfo, setShowInfo] = useState(false);
@@ -73,11 +84,9 @@ export default function ChessGame() {
     }
   }, [fen]);
 
-  // Compute navigation availability
   const canGoBack = !isThinking && currentIndex > 0;
   const canGoForward = !isThinking && currentIndex < history.length - 1;
 
-  // Handlers
   const onPieceDrop = useCallback((src, dst) => {
     if (isThinking || gameOver) return false;
     const game = new Chess(fen);
@@ -85,24 +94,25 @@ export default function ChessGame() {
     if (!move) return false;
     const newFen = game.fen();
     setHistory((h) => [...h.slice(0, currentIndex + 1), newFen]);
+    setMovesHistory((m) => [...m.slice(0, currentIndex), move.san]);
     setCurrentIndex((i) => i + 1);
     setThinkingInfo({ score: evaluateBoard(game), line: [] });
     return true;
   }, [fen, currentIndex, isThinking, gameOver]);
 
+  // Engine move handler
   const makeEngineMove = () => {
     if (isThinking || gameOver) return;
     setIsThinking(true);
-    const start = performance.now();
     const idx = currentIndex;
     setTimeout(() => {
       const game = new Chess(fen);
       const { move: bestMove, score, line } = searchRoot(game, time * 1000, mf);
-
       if (bestMove) {
         game.move(bestMove);
         const newFen = game.fen();
         setHistory((h) => [...h.slice(0, idx + 1), newFen]);
+        setMovesHistory((m) => [...m.slice(0, idx), bestMove]);
         setCurrentIndex((i) => i + 1);
         setThinkingInfo({ score, line });
       }
@@ -120,6 +130,7 @@ export default function ChessGame() {
     if (isThinking) return;
     const game = new Chess();
     setHistory([game.fen()]);
+    setMovesHistory([]);
     setCurrentIndex(0);
     setThinkingInfo({ score: evaluateBoard(game), line: [] });
     setGameOver(false);
@@ -174,7 +185,7 @@ export default function ChessGame() {
             </p>
             <p>
               <strong>Iterative Deepening & Time Cap:</strong> The engine
-              searches depth 1, then 2, then 3, … up to your hard ceiling,
+              searches depth 1, then 2, then 3… up to your hard ceiling,
               stopping when the timer expires. You always get the deepest
               fully-completed result.
             </p>
@@ -200,13 +211,12 @@ export default function ChessGame() {
         </span>{" "}
         Chess Engine
       </h2>
+
       <Controls
         time={time}
         onTimeChange={setTime}
         onMobilityChange={setMF}
         mobilityFactor={mf}
-        depth={time}
-        onDepthChange={setTime}
         onMakeMove={makeEngineMove}
         onReset={resetGame}
         onBack={goBack}
@@ -225,7 +235,11 @@ export default function ChessGame() {
         }
       />
 
-      <ThinkingStats score={thinkingInfo.score} line={thinkingInfo.line} />
+      <ThinkingStats
+        score={thinkingInfo.score}
+        line={thinkingInfo.line}
+        movesHistory={movesHistory}
+      />
     </div>
   );
 }

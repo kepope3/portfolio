@@ -83,6 +83,8 @@
   background: rgba(0, 0, 0, 0.2);
   padding: 0.5rem;
   border-radius: 0.25rem;
+  display: flex;
+  flex-flow: column;
 }
 
 .thinking p {
@@ -174,4 +176,20 @@
 
 .closeButton:hover {
   background-color: #5f3dcf; /* a slightly darker tint, if you like */
+}
+
+.copyButton {
+  background-color: var(--accent-color);
+  color: #fff;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+  margin-top: 0.5rem;
+}
+
+.copyButton:hover {
+  background-color: #5f3dcf;
 }
