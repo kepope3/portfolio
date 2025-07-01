@@ -116,7 +116,7 @@ export function Controls({
         disabled={disableAll}
         style={{ background: "#3dd164" }}
       >
-        {"Perform Engine Move"}
+        {"Execute Engine Move"}
       </button>
       <button onClick={onReset} disabled={disableAll}>
         Reset
