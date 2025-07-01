@@ -36,7 +36,7 @@ export default function ChessGame() {
 
   // Search settings
   const [depth, setDepth] = useState(3);
-  const [mf, setMF] = useState(0);
+  const [mf, setMF] = useState(0.005);
   const [useAB, setUseAB] = useState(true);
   const [useQ, setUseQ] = useState(true);
   const [useMO, setUseMO] = useState(true);
