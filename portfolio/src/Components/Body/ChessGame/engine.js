@@ -16,8 +16,8 @@ function orderedMoves(game, isEnabled = false) {
   return [...caps, ...nonCaps].map((m) => m.san);
 }
 
-// Evaluate board by material balance (white positive)
-export function evaluateBoard(game) {
+// Evaluate board by material balance + mobility (mobilityFactor) bonus (white positive)
+export function evaluateBoard(game, mobilityFactor = 0) {
   const board = game.board();
   let total = 0;
   for (let row of board) {
@@ -28,12 +28,23 @@ export function evaluateBoard(game) {
       }
     }
   }
+  // mobilityFactor bonus: mobilityFactor * number of legal moves
+  const movesCount = game.moves().length;
+  const sign = game.turn() === "w" ? 1 : -1;
+  total += movesCount * mobilityFactor * sign;
   return total;
 }
 
 // Quiescence search: only consider capture moves to avoid horizon effect
-export function quiescence(game, alpha, beta, isMaximizing, qDepth = 4) {
-  const standPat = evaluateBoard(game);
+export function quiescence(
+  game,
+  alpha,
+  beta,
+  isMaximizing,
+  qDepth = 4,
+  mobilityFactor = 0
+) {
+  const standPat = evaluateBoard(game, mobilityFactor);
   if (isMaximizing) alpha = Math.max(alpha, standPat);
   else beta = Math.min(beta, standPat);
   if (beta <= alpha || qDepth <= 0) {
@@ -51,7 +62,14 @@ export function quiescence(game, alpha, beta, isMaximizing, qDepth = 4) {
   let best = { score: standPat, move: null, line: [] };
   for (let m of captures) {
     game.move(m.san);
-    const result = quiescence(game, alpha, beta, !isMaximizing, qDepth - 1);
+    const result = quiescence(
+      game,
+      alpha,
+      beta,
+      !isMaximizing,
+      qDepth - 1,
+      mobilityFactor
+    );
     game.undo();
 
     const currentScore = result.score;
@@ -72,24 +90,26 @@ export function quiescence(game, alpha, beta, isMaximizing, qDepth = 4) {
   return best;
 }
 
-// Plain minimax with optional quiescence and optional Transposition Table
+// Plain minimax with optional quiescence and optional move ordering
 export function minimax(
   game,
   depth,
   isMaximizing,
   useQ = false,
-  useMO = false
+  useMO = false,
+  mobilityFactor = 0
 ) {
   const alphaInit = -Infinity;
   const betaInit = Infinity;
   if (depth === 0) {
     const evalScore = useQ
-      ? quiescence(game, alphaInit, betaInit, isMaximizing).score
-      : evaluateBoard(game);
+      ? quiescence(game, alphaInit, betaInit, isMaximizing, 4, mobilityFactor)
+          .score
+      : evaluateBoard(game, mobilityFactor);
     return { score: evalScore, move: null, line: [] };
   }
   if (game.game_over()) {
-    return { score: evaluateBoard(game), move: null, line: [] };
+    return { score: evaluateBoard(game, mobilityFactor), move: null, line: [] };
   }
 
   // move ordering if desired
@@ -97,7 +117,14 @@ export function minimax(
   let best = { score: null, move: null, line: [] };
   for (let mSan of moves) {
     game.move(mSan);
-    const result = minimax(game, depth - 1, !isMaximizing, useQ);
+    const result = minimax(
+      game,
+      depth - 1,
+      !isMaximizing,
+      useQ,
+      useMO,
+      mobilityFactor
+    );
     game.undo();
 
     const currentScore = result.score;
@@ -112,7 +139,7 @@ export function minimax(
   return best;
 }
 
-// Minimax with alpha-beta and optional Transposition Table
+// Minimax with alpha-beta and optional move ordering
 export function alphabeta(
   game,
   depth,
@@ -120,15 +147,16 @@ export function alphabeta(
   beta,
   isMaximizing,
   useQ = false,
-  useMO = false
+  useMO = false,
+  mobilityFactor = 0
 ) {
   if (depth === 0) {
     return useQ
-      ? quiescence(game, alpha, beta, isMaximizing)
-      : { score: evaluateBoard(game), move: null, line: [] };
+      ? quiescence(game, alpha, beta, isMaximizing, 4, mobilityFactor)
+      : { score: evaluateBoard(game, mobilityFactor), move: null, line: [] };
   }
   if (game.game_over()) {
-    return { score: evaluateBoard(game), move: null, line: [] };
+    return { score: evaluateBoard(game, mobilityFactor), move: null, line: [] };
   }
 
   // move ordering: captures first
@@ -137,7 +165,16 @@ export function alphabeta(
 
   for (let mSan of moves) {
     game.move(mSan);
-    const result = alphabeta(game, depth - 1, alpha, beta, !isMaximizing, useQ);
+    const result = alphabeta(
+      game,
+      depth - 1,
+      alpha,
+      beta,
+      !isMaximizing,
+      useQ,
+      useMO,
+      mobilityFactor
+    );
     game.undo();
 
     const currentScore = result.score;
