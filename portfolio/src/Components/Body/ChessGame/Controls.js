@@ -111,8 +111,12 @@ export function Controls({
         </span>
       </label>
 
-      <button onClick={onMakeMove} disabled={disableAll}>
-        {disableAll ? "Thinking..." : "Make Move"}
+      <button
+        onClick={onMakeMove}
+        disabled={disableAll}
+        style={{ background: "#3dd164" }}
+      >
+        {"Perform Engine Move"}
       </button>
       <button onClick={onReset} disabled={disableAll}>
         Reset
