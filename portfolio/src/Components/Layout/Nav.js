@@ -1,6 +1,6 @@
 import React from "react";
 import List from "../Shared/List";
-import styles from "./../../Assets/CSS/Layout/Nav.module.css";
+import styles from "./../../Assets/CSS/Layout/nav.module.css";
 export default class extends React.Component {
   constructor(props) {
     super(props);
@@ -35,7 +35,8 @@ export default class extends React.Component {
             </a>,
             <a href="#about">About</a>,
             <a href="#resume">Résumé</a>,
-            <a href="#typingGame">Game</a>,
+            <a href="#typingGame">Typing Game</a>,
+            <a href="#chessGame">Chess Game</a>,
             <a href="#contact">Contact</a>,
           ]}
         />

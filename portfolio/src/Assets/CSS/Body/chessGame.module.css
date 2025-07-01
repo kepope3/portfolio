@@ -1,0 +1,161 @@
+:root {
+  --bg-color: #1e1e2e;
+  --text-color: #b3bad6;
+  --overlay-bg: rgba(255, 255, 255, 0.9);
+  --accent-color: #7f5af0;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  padding: 1rem;
+  position: relative;
+}
+
+.controls {
+  margin-bottom: 1rem;
+  font-size: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.controls label {
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
+}
+
+.controls input[type="number"] {
+  width: 3rem;
+  margin-left: 0.25rem;
+  padding: 0.2rem;
+  border: 1px solid var(--text-color);
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--text-color);
+}
+
+.controls input[type="checkbox"] {
+  margin-right: 0.25rem;
+}
+
+.controls button {
+  background-color: var(--accent-color);
+  color: #fff;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.controls button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+.boardContainer {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  background: var(--overlay-bg);
+  color: #000;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.thinking {
+  font-size: 0.9rem;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.thinking p {
+  padding: 0;
+}
+
+.help {
+  margin-left: 0.5rem;
+  cursor: pointer;
+  font-weight: bold;
+  display: inline-block;
+  width: 1.2rem;
+  height: 1.2rem;
+  line-height: 1.2rem;
+  text-align: center;
+  border-radius: 50%;
+  background-color: var(--accent-color);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+}
+.modal {
+  overflow: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+}
+.modalContent {
+  background: #fff;
+  color: #000;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  max-width: 90%;
+}
+
+.modalBody {
+  max-height: 500px;
+  overflow: auto;
+}
+
+// Feature explanation wrapper styles
+.featureExplain {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+.featureBox {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+.featureBox h3 {
+  margin-top: 0;
+}
+.featureBox pre {
+  background: #222;
+  color: #fff;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  overflow-x: auto;
+}
+
+.depthDisplay {
+  display: inline-block;
+  min-width: 24px;
+  text-align: center;
+  font-weight: bold;
+}

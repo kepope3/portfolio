@@ -4,6 +4,7 @@ import AboutContent from "./AboutContent";
 import ResumeContent from "./ResumeContent";
 import ContactContent from "./ContactContent";
 import TypingGame from "./TypingGame/TypingGame";
+import ChessGame from "./ChessGame/ChessGame";
 
 export default () => (
   <React.Fragment>
@@ -32,6 +33,15 @@ export default () => (
         }}
       >
         <TypingGame />
+      </Section>
+    </div>
+    <div id="chessGame">
+      <Section
+        backgroundStyle={{
+          backgroundImage: "linear-gradient(10deg, #9b9795, black)",
+        }}
+      >
+        <ChessGame />
       </Section>
     </div>
     <div id="contact">
