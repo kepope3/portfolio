@@ -1,8 +1,12 @@
 // Simple material values for evaluation
 const pieceValues = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
-
-// Extreme scores for mate
 const MATE_SCORE = 100000;
+
+// Transposition Table (simple Map with FEN+depth key)
+const tt = new Map();
+
+// Killer moves table (store top 2 killers per depth)
+const killers = {};
 
 // Helper: Detect terminal positions (mate or draw)
 function isTerminal(game) {
@@ -12,47 +16,46 @@ function isTerminal(game) {
 // Helper: Assign scores for mate and draw
 function terminalScore(game, depth, isMaximizing) {
   if (game.in_checkmate()) {
-    // If side to move is mated, bad for them
     return (isMaximizing ? -1 : 1) * (MATE_SCORE - depth);
   }
-  // stalemate or other draw
   return 0;
 }
 
-// Optional: simple move ordering (captures first)
-function orderedMoves(game, isEnabled = false) {
+// Move ordering: captures first (MVV/LVA), then killer moves, then others
+function orderedMoves(game, useCapturesFirst = false, depth = 0) {
   const all = game.moves({ verbose: true });
-
-  if (!isEnabled) {
-    return all.map((m) => m.san);
-  }
-
-  const caps = all
-    .filter((m) => m.captured)
-    .sort((a, b) => pieceValues[b.captured] - pieceValues[a.captured]);
-  const nonCaps = all.filter((m) => !m.captured);
-  return [...caps, ...nonCaps].map((m) => m.san);
+  // assign a score to each move
+  const scored = all.map((m) => {
+    let score = 0;
+    if (useCapturesFirst && m.captured) {
+      // MVV/LVA: victim value *100 - attacker value
+      score = pieceValues[m.captured] * 100 - (pieceValues[m.piece] || 0);
+    } else if (killers[depth]) {
+      // killer heuristic for non-captures
+      const key = m.san;
+      if (killers[depth][0] === key) score = 80;
+      else if (killers[depth][1] === key) score = 70;
+    }
+    return { move: m, score, san: m.san };
+  });
+  // sort descending by score
+  scored.sort((a, b) => b.score - a.score);
+  return scored.map((s) => s.san);
 }
 
-// Evaluate board by material balance + mobility bonus (white positive)
+// Evaluate board by material + mobility
 export function evaluateBoard(game, mobilityFactor = 0) {
   const board = game.board();
   let total = 0;
-  for (let row of board) {
-    for (let piece of row) {
-      if (piece) {
-        const value = pieceValues[piece.type] || 0;
-        total += piece.color === "w" ? value : -value;
-      }
-    }
-  }
+  for (let row of board)
+    for (let p of row)
+      if (p) total += pieceValues[p.type] * (p.color === "w" ? 1 : -1);
   const movesCount = game.moves().length;
   const sign = game.turn() === "w" ? 1 : -1;
-  total += movesCount * mobilityFactor * sign;
-  return total;
+  return total + movesCount * mobilityFactor * sign;
 }
 
-// Quiescence search: only consider capture moves to avoid horizon effect
+// Quiescence search
 export function quiescence(
   game,
   alpha,
@@ -61,26 +64,26 @@ export function quiescence(
   qDepth = 4,
   mobilityFactor = 0
 ) {
-  if (isTerminal(game)) {
+  if (isTerminal(game))
     return {
       score: terminalScore(game, qDepth, isMaximizing),
       move: null,
       line: [],
     };
-  }
-
-  const standPat = evaluateBoard(game, mobilityFactor);
-  if (isMaximizing) alpha = Math.max(alpha, standPat);
-  else beta = Math.min(beta, standPat);
-  if (beta <= alpha || qDepth <= 0) {
-    return { score: standPat, move: null, line: [] };
-  }
-
-  let captures = game.moves({ verbose: true }).filter((m) => m.captured);
-  captures.sort((a, b) => pieceValues[b.captured] - pieceValues[a.captured]);
-
-  let best = { score: standPat, move: null, line: [] };
-  for (let m of captures) {
+  const stand = evaluateBoard(game, mobilityFactor);
+  if (isMaximizing) alpha = Math.max(alpha, stand);
+  else beta = Math.min(beta, stand);
+  if (beta <= alpha || qDepth <= 0)
+    return { score: stand, move: null, line: [] };
+  let caps = game.moves({ verbose: true }).filter((m) => m.captured);
+  // MVV/LVA sort
+  caps.sort(
+    (a, b) =>
+      pieceValues[b.captured] - pieceValues[a.captured] ||
+      pieceValues[a.piece] - pieceValues[b.piece]
+  );
+  let best = { score: stand, move: null, line: [] };
+  for (let m of caps) {
     game.move(m.san);
     if (game.in_checkmate()) {
       game.undo();
@@ -90,7 +93,7 @@ export function quiescence(
         line: [m.san],
       };
     }
-    const result = quiescence(
+    const res = quiescence(
       game,
       alpha,
       beta,
@@ -99,25 +102,19 @@ export function quiescence(
       mobilityFactor
     );
     game.undo();
-
     if (
-      (isMaximizing && result.score > best.score) ||
-      (!isMaximizing && result.score < best.score)
-    ) {
-      best = {
-        score: result.score,
-        move: m.san,
-        line: [m.san, ...result.line],
-      };
-    }
-    if (isMaximizing) alpha = Math.max(alpha, result.score);
-    else beta = Math.min(beta, result.score);
+      (isMaximizing && res.score > best.score) ||
+      (!isMaximizing && res.score < best.score)
+    )
+      best = { score: res.score, move: m.san, line: [m.san, ...res.line] };
+    if (isMaximizing) alpha = Math.max(alpha, res.score);
+    else beta = Math.min(beta, res.score);
     if (beta <= alpha) break;
   }
   return best;
 }
 
-// Plain minimax with optional quiescence and move ordering, plus immediate mate detection
+// Plain minimax with caching, quiescence, capture ordering
 export function minimax(
   game,
   depth,
@@ -126,37 +123,41 @@ export function minimax(
   useMO = false,
   mobilityFactor = 0
 ) {
-  if (isTerminal(game)) {
+  const key = `${game.fen()}|${depth}|${useQ}|${useMO}`;
+  if (tt.has(key)) return tt.get(key);
+  if (isTerminal(game))
     return {
       score: terminalScore(game, depth, isMaximizing),
       move: null,
       line: [],
     };
-  }
-
   if (depth === 0) {
-    const evalScore = useQ
+    const score = useQ
       ? quiescence(game, -Infinity, Infinity, isMaximizing, 4, mobilityFactor)
           .score
       : evaluateBoard(game, mobilityFactor);
-    return { score: evalScore, move: null, line: [] };
+    const res = { score, move: null, line: [] };
+    tt.set(key, res);
+    return res;
   }
-
-  const moves = orderedMoves(game, useMO);
-  let best = { score: null, move: null, line: [] };
-  for (let mSan of moves) {
-    game.move(mSan);
-
-    // Immediate mate detection
+  const moves = orderedMoves(game, useMO, depth);
+  let best = {
+    score: isMaximizing ? -Infinity : Infinity,
+    move: null,
+    line: [],
+  };
+  for (let san of moves) {
+    game.move(san);
     if (game.in_checkmate()) {
       game.undo();
-      return {
+      const res = {
         score: (isMaximizing ? 1 : -1) * (MATE_SCORE - depth),
-        move: mSan,
-        line: [mSan],
+        move: san,
+        line: [san],
       };
+      tt.set(key, res);
+      return res;
     }
-
     const result = minimax(
       game,
       depth - 1,
@@ -166,20 +167,17 @@ export function minimax(
       mobilityFactor
     );
     game.undo();
-
-    const currentScore = result.score;
     if (
-      best.move === null ||
-      (isMaximizing && currentScore > best.score) ||
-      (!isMaximizing && currentScore < best.score)
-    ) {
-      best = { score: currentScore, move: mSan, line: [mSan, ...result.line] };
-    }
+      (isMaximizing && result.score > best.score) ||
+      (!isMaximizing && result.score < best.score)
+    )
+      best = { score: result.score, move: san, line: [san, ...result.line] };
   }
+  tt.set(key, best);
   return best;
 }
 
-// Minimax with alpha-beta, plus immediate mate detection
+// Alpha-beta with caching, captures + killer move ordering
 export function alphabeta(
   game,
   depth,
@@ -190,37 +188,41 @@ export function alphabeta(
   useMO = false,
   mobilityFactor = 0
 ) {
-  if (isTerminal(game)) {
+  const key = `${game.fen()}|${depth}|${useQ}|${useMO}`;
+  if (tt.has(key)) return tt.get(key);
+  if (isTerminal(game))
     return {
       score: terminalScore(game, depth, isMaximizing),
       move: null,
       line: [],
     };
-  }
-
   if (depth === 0) {
-    return useQ
+    const res = useQ
       ? quiescence(game, alpha, beta, isMaximizing, 4, mobilityFactor)
       : { score: evaluateBoard(game, mobilityFactor), move: null, line: [] };
+    tt.set(key, res);
+    return res;
   }
-
-  const moves = orderedMoves(game, useMO);
-  let best = { score: null, move: null, line: [] };
-
-  for (let mSan of moves) {
-    game.move(mSan);
-
-    // Immediate mate detection
+  let best = {
+    score: isMaximizing ? -Infinity : Infinity,
+    move: null,
+    line: [],
+  };
+  const moves = orderedMoves(game, useMO, depth);
+  for (let san of moves) {
+    // make move and capture move object for heuristics
+    const moveObj = game.move(san);
     if (game.in_checkmate()) {
       game.undo();
-      return {
+      const res = {
         score: (isMaximizing ? 1 : -1) * (MATE_SCORE - depth),
-        move: mSan,
-        line: [mSan],
+        move: san,
+        line: [san],
       };
+      tt.set(key, res);
+      return res;
     }
-
-    const result = alphabeta(
+    const res = alphabeta(
       game,
       depth - 1,
       alpha,
@@ -231,18 +233,26 @@ export function alphabeta(
       mobilityFactor
     );
     game.undo();
-
-    const currentScore = result.score;
+    const score = res.score;
     if (
-      best.move === null ||
-      (isMaximizing && currentScore > best.score) ||
-      (!isMaximizing && currentScore < best.score)
+      (isMaximizing && score > best.score) ||
+      (!isMaximizing && score < best.score)
     ) {
-      best = { score: currentScore, move: mSan, line: [mSan, ...result.line] };
+      best = { score, move: san, line: [san, ...res.line] };
     }
-    if (isMaximizing) alpha = Math.max(alpha, currentScore);
-    else beta = Math.min(beta, currentScore);
-    if (beta <= alpha) break;
+    if (isMaximizing) alpha = Math.max(alpha, score);
+    else beta = Math.min(beta, score);
+    if (beta <= alpha) {
+      // store killer move if it was not a capture
+      if (!moveObj.captured) {
+        killers[depth] = killers[depth] || [];
+        // prepend and keep top 2
+        killers[depth].unshift(san);
+        killers[depth] = killers[depth].slice(0, 2);
+      }
+      break;
+    }
   }
+  tt.set(key, best);
   return best;
 }
