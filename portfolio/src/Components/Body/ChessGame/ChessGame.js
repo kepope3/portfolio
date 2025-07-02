@@ -27,7 +27,7 @@ function ThinkingStats({ score, line, movesHistory }) {
 
   return (
     <div className={styles.thinking}>
-      <p>Score: {score.toFixed(2)}</p>
+      <p>Engine score: {score.toFixed(2)}</p>
       <p>Engine line: {line.join(" ")}</p>
       <button onClick={copyPGN} className={styles.copyButton}>
         Copy PGN
@@ -51,7 +51,10 @@ export default function ChessGame() {
   const [showInfo, setShowInfo] = useState(false);
 
   // Thinking stats
-  const [thinkingInfo, setThinkingInfo] = useState({ score: 0, line: [] });
+  const [thinkingInfo, setThinkingInfo] = useState({
+    score: 0,
+    line: [],
+  });
   const [isThinking, setIsThinking] = useState(false);
 
   // Game status
@@ -71,10 +74,6 @@ export default function ChessGame() {
   // Sync on FEN change
   useEffect(() => {
     const game = new Chess(fen);
-    setThinkingInfo((prev) => ({
-      score: evaluateBoard(game),
-      line: prev.line,
-    }));
     if (game.in_checkmate()) {
       setGameOver(true);
       setStatus(`Checkmate! ${game.turn() === "w" ? "Black" : "White"} wins.`);
@@ -87,18 +86,22 @@ export default function ChessGame() {
   const canGoBack = !isThinking && currentIndex > 0;
   const canGoForward = !isThinking && currentIndex < history.length - 1;
 
-  const onPieceDrop = useCallback((src, dst) => {
-    if (isThinking || gameOver) return false;
-    const game = new Chess(fen);
-    const move = game.move({ from: src, to: dst, promotion: "q" });
-    if (!move) return false;
-    const newFen = game.fen();
-    setHistory((h) => [...h.slice(0, currentIndex + 1), newFen]);
-    setMovesHistory((m) => [...m.slice(0, currentIndex), move.san]);
-    setCurrentIndex((i) => i + 1);
-    setThinkingInfo({ score: evaluateBoard(game), line: [] });
-    return true;
-  }, [fen, currentIndex, isThinking, gameOver]);
+  const onPieceDrop = useCallback(
+    (src, dst) => {
+      if (isThinking || gameOver) return false;
+      const game = new Chess(fen);
+      const move = game.move({ from: src, to: dst, promotion: "q" });
+      if (!move) return false;
+      const newFen = game.fen();
+      setHistory((h) => [...h.slice(0, currentIndex + 1), newFen]);
+      setMovesHistory((m) => [...m.slice(0, currentIndex), move.san]);
+      setCurrentIndex((i) => i + 1);
+      const { score, line } = searchRoot(game, 500, mf);
+      setThinkingInfo({ score, line });
+      return true;
+    },
+    [fen, currentIndex, isThinking, gameOver]
+  );
 
   // Engine move handler
   const makeEngineMove = () => {
@@ -167,7 +170,8 @@ export default function ChessGame() {
             </p>
             <p>
               To move a piece, simply drag it to your desired square at any
-              time.
+              time. After moving, the engine makes a short evaluation to display
+              a calculated line and score.
             </p>
             <hr />
             <h4>New Optimizations</h4>
