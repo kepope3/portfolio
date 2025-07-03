@@ -42,6 +42,7 @@ export default function ChessGame() {
   const [history, setHistory] = useState([new Chess().fen()]);
   const [movesHistory, setMovesHistory] = useState([]); // SAN list
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [humanMove, setHumanMove] = useState(false);
   const fen = history[currentIndex];
 
   // Search settings
@@ -83,6 +84,13 @@ export default function ChessGame() {
     }
   }, [fen]);
 
+  useEffect(() => {
+    if (humanMove) {
+      makeEngineMove();
+      setHumanMove(false);
+    }
+  }, [humanMove]);
+
   const canGoBack = !isThinking && currentIndex > 0;
   const canGoForward = !isThinking && currentIndex < history.length - 1;
 
@@ -96,8 +104,7 @@ export default function ChessGame() {
       setHistory((h) => [...h.slice(0, currentIndex + 1), newFen]);
       setMovesHistory((m) => [...m.slice(0, currentIndex), move.san]);
       setCurrentIndex((i) => i + 1);
-      const { score, line } = searchRoot(game, 500, mf);
-      setThinkingInfo({ score, line });
+      setHumanMove(true);
       return true;
     },
     [fen, currentIndex, isThinking, gameOver]
@@ -170,8 +177,7 @@ export default function ChessGame() {
             </p>
             <p>
               To move a piece, simply drag it to your desired square at any
-              time. After moving, the engine makes a short evaluation to display
-              a calculated line and score.
+              time. After moving, the engine will execute it's own move.
             </p>
             <hr />
             <h4>New Optimizations</h4>
